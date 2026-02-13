@@ -1,0 +1,8 @@
+{
+  "fields": {
+    "/order/id": "/orderId",
+    "/order/amount": "/amount",
+    "/customer/id": "/customer/id",
+    "/meta/sourceIntent": "/intent"
+  }
+}
