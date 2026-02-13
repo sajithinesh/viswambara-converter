@@ -2,11 +2,7 @@ package com.viswambara.converter.provider;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.viswambara.converter.config.IntegrationProperties;
-import com.viswambara.converter.domain.CanonicalRequest;
-import com.viswambara.converter.domain.InputFormat;
 import com.viswambara.converter.exception.IntegrationException;
-import com.viswambara.converter.mapping.CanonicalParser;
-import com.viswambara.converter.mapping.FormatDetectionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
@@ -28,17 +24,10 @@ public class HttpProviderGateway implements ProviderGateway {
 
     private final IntegrationProperties properties;
     private final RestTemplate restTemplate;
-    private final FormatDetectionService formatDetectionService;
-    private final CanonicalParser canonicalParser;
 
-    public HttpProviderGateway(IntegrationProperties properties,
-                               RestTemplate restTemplate,
-                               FormatDetectionService formatDetectionService,
-                               CanonicalParser canonicalParser) {
+    public HttpProviderGateway(IntegrationProperties properties, RestTemplate restTemplate) {
         this.properties = properties;
         this.restTemplate = restTemplate;
-        this.formatDetectionService = formatDetectionService;
-        this.canonicalParser = canonicalParser;
     }
 
     @Override
@@ -56,16 +45,11 @@ public class HttpProviderGateway implements ProviderGateway {
 
         try {
             log.info("Calling provider={} url={}", providerName, url);
-            ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, entity, String.class);
-            String body = response.getBody();
-            if (body == null || body.isBlank()) {
+            ResponseEntity<JsonNode> response = restTemplate.exchange(url, HttpMethod.POST, entity, JsonNode.class);
+            if (response.getBody() == null) {
                 throw new IntegrationException(HttpStatus.BAD_GATEWAY, "Provider returned empty response");
             }
-
-            String responseContentType = response.getHeaders().getFirst(HttpHeaders.CONTENT_TYPE);
-            InputFormat format = formatDetectionService.detect(responseContentType, body);
-            CanonicalRequest parsed = canonicalParser.parse(format, body);
-            return parsed.payload();
+            return response.getBody();
         } catch (RestClientException ex) {
             log.error("Provider call failed for provider={}", providerName, ex);
             throw ex;

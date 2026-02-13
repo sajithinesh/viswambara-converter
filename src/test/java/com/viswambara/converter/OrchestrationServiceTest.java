@@ -78,13 +78,13 @@ class OrchestrationServiceTest {
     @Test
     void shouldProcessXmlRequestByPayloadDetection() {
         providerB.enqueue(new MockResponse()
-                .setHeader("Content-Type", "application/xml")
+                .setHeader("Content-Type", "application/json")
                 .setBody("""
-                        <response>
-                            <validationStatus>SUCCESS</validationStatus>
-                            <referenceId>REF-22</referenceId>
-                            <reason>Customer validated</reason>
-                        </response>
+                        {
+                          "validationStatus": "SUCCESS",
+                          "referenceId": "REF-22",
+                          "reason": "Customer validated"
+                        }
                         """));
 
         String xmlInput = """
