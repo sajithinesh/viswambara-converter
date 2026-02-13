@@ -1,4 +1,4 @@
-package com.viswambara.converter.exception;
+package com.lanc.converter.exception;
 
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;

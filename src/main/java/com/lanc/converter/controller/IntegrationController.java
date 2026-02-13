@@ -1,7 +1,7 @@
-package com.viswambara.converter.controller;
+package com.lanc.converter.controller;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.viswambara.converter.service.OrchestrationService;
+import com.lanc.converter.service.OrchestrationService;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PostMapping;

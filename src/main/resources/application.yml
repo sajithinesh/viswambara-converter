@@ -1,6 +1,6 @@
 spring:
   application:
-    name: viswambara-converter
+    name: lanc-converter
 
 management:
   endpoints:
@@ -26,10 +26,15 @@ integration:
       baseUrl: http://localhost:9091
       path: /provider-a/orders
       timeout: 5s
+      requestFormat: JSON
+      responseFormat: JSON
     providerB:
       baseUrl: http://localhost:9092
       path: /provider-b/customers/validate
       timeout: 5s
+      requestFormat: XML
+      responseFormat: XML
+      requestRootElement: CustomerValidationRequest
 
   mappings:
     providerA:createOrder:

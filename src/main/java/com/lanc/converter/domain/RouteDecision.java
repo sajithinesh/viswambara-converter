@@ -1,4 +1,4 @@
-package com.viswambara.converter.domain;
+package com.lanc.converter.domain;
 
 public record RouteDecision(String provider, String operation) {
 }

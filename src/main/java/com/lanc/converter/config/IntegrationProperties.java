@@ -1,5 +1,6 @@
-package com.viswambara.converter.config;
+package com.lanc.converter.config;
 
+import com.lanc.converter.domain.PayloadFormat;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
@@ -89,6 +90,9 @@ public class IntegrationProperties {
         @NotBlank
         private String path;
         private Duration timeout = Duration.ofSeconds(5);
+        private PayloadFormat requestFormat = PayloadFormat.JSON;
+        private PayloadFormat responseFormat = PayloadFormat.JSON;
+        private String requestRootElement = "request";
 
         public String getBaseUrl() {
             return baseUrl;
@@ -112,6 +116,30 @@ public class IntegrationProperties {
 
         public void setTimeout(Duration timeout) {
             this.timeout = timeout;
+        }
+
+        public PayloadFormat getRequestFormat() {
+            return requestFormat;
+        }
+
+        public void setRequestFormat(PayloadFormat requestFormat) {
+            this.requestFormat = requestFormat;
+        }
+
+        public PayloadFormat getResponseFormat() {
+            return responseFormat;
+        }
+
+        public void setResponseFormat(PayloadFormat responseFormat) {
+            this.responseFormat = responseFormat;
+        }
+
+        public String getRequestRootElement() {
+            return requestRootElement;
+        }
+
+        public void setRequestRootElement(String requestRootElement) {
+            this.requestRootElement = requestRootElement;
         }
     }
 

@@ -1,4 +1,4 @@
-package com.viswambara.converter.domain;
+package com.lanc.converter.domain;
 
 import com.fasterxml.jackson.databind.JsonNode;
 

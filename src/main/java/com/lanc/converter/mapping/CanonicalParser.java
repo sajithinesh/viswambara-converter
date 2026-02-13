@@ -1,11 +1,11 @@
-package com.viswambara.converter.mapping;
+package com.lanc.converter.mapping;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import com.viswambara.converter.domain.CanonicalRequest;
-import com.viswambara.converter.domain.InputFormat;
-import com.viswambara.converter.exception.IntegrationException;
+import com.lanc.converter.domain.CanonicalRequest;
+import com.lanc.converter.domain.InputFormat;
+import com.lanc.converter.exception.IntegrationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 

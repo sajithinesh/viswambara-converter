@@ -9,10 +9,10 @@
         <relativePath/>
     </parent>
 
-    <groupId>com.viswambara</groupId>
+    <groupId>com.lanc</groupId>
     <artifactId>converter</artifactId>
     <version>1.0.0</version>
-    <name>viswambara-converter</name>
+    <name>lanc-converter</name>
     <description>Config-driven integration orchestrator</description>
 
     <properties>

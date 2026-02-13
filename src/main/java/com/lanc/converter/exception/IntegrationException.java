@@ -1,4 +1,4 @@
-package com.viswambara.converter.exception;
+package com.lanc.converter.exception;
 
 import org.springframework.http.HttpStatus;
 
