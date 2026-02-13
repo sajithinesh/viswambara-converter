@@ -1,0 +1,7 @@
+{
+  "fields": {
+    "/status": "/result/status",
+    "/transactionId": "/result/providerTxnId",
+    "/message": "/result/message"
+  }
+}
