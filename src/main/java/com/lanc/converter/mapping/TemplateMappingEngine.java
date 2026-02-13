@@ -1,9 +1,9 @@
-package com.viswambara.converter.mapping;
+package com.lanc.converter.mapping;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.viswambara.converter.exception.IntegrationException;
+import com.lanc.converter.exception.IntegrationException;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.http.HttpStatus;

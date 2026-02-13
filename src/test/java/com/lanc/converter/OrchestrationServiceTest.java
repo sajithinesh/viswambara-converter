@@ -1,14 +1,15 @@
-package com.viswambara.converter;
+package com.lanc.converter;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.squareup.okhttp3.mockwebserver.MockResponse;
 import com.squareup.okhttp3.mockwebserver.MockWebServer;
-import com.viswambara.converter.service.OrchestrationService;
+import com.lanc.converter.service.OrchestrationService;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 
@@ -45,9 +46,9 @@ class OrchestrationServiceTest {
     }
 
     @Test
-    void shouldProcessJsonRequest() throws Exception {
+    void shouldProcessJsonRequest() {
         providerA.enqueue(new MockResponse()
-                .setHeader("Content-Type", "application/json")
+                .setHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
                 .setBody("""
                         {
                           "result": {
@@ -76,15 +77,15 @@ class OrchestrationServiceTest {
     }
 
     @Test
-    void shouldProcessXmlRequestByPayloadDetection() {
+    void shouldProcessXmlInputAndXmlProviderResponse() throws Exception {
         providerB.enqueue(new MockResponse()
-                .setHeader("Content-Type", "application/json")
+                .setHeader("Content-Type", MediaType.APPLICATION_XML_VALUE)
                 .setBody("""
-                        {
-                          "validationStatus": "SUCCESS",
-                          "referenceId": "REF-22",
-                          "reason": "Customer validated"
-                        }
+                        <ProviderResponse>
+                            <validationStatus>SUCCESS</validationStatus>
+                            <referenceId>REF-22</referenceId>
+                            <reason>Customer validated</reason>
+                        </ProviderResponse>
                         """));
 
         String xmlInput = """
@@ -99,6 +100,10 @@ class OrchestrationServiceTest {
                 """;
 
         JsonNode result = orchestrationService.process(xmlInput, null);
+
+        var providerRequest = providerB.takeRequest();
+        assertThat(providerRequest.getHeader("Content-Type")).contains(MediaType.APPLICATION_XML_VALUE);
+        assertThat(providerRequest.getBody().readUtf8()).contains("<CustomerValidationRequest>");
 
         assertThat(result.path("status").asText()).isEqualTo("SUCCESS");
         assertThat(result.path("provider").asText()).isEqualTo("providerB");

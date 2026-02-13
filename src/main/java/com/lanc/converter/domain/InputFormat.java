@@ -1,4 +1,4 @@
-package com.viswambara.converter.domain;
+package com.lanc.converter.domain;
 
 public enum InputFormat {
     JSON,

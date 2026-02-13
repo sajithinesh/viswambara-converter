@@ -1,23 +1,20 @@
-# Viswambara Converter (Config-Driven Integration Orchestrator)
+# LANC Converter (Config-Driven Integration Orchestrator)
 
-Production-ready Spring Boot backend that accepts JSON/XML, resolves provider and operation by configuration, transforms payloads with template mappings, invokes provider APIs, and always returns standardized JSON.
+Production-ready Spring Boot backend that accepts JSON/XML, resolves provider + operation by configuration, transforms payloads with template mappings, invokes provider APIs, and always returns standardized JSON.
 
-## Architecture
+## What this layer does
 
-- `IntegrationController` receives payloads at `POST /api/v1/integrations/process`.
-- `FormatDetectionService` detects JSON/XML from header or payload shape.
-- `CanonicalParser` converts JSON/XML into a common `JsonNode` CDM.
-- `RouteResolver` identifies `provider + operation` using configurable route rules.
-- `TemplateMappingEngine` maps:
-  - Canonical request -> provider request
-  - provider response -> standardized response
-- `HttpProviderGateway` calls provider APIs with retry and error propagation.
-- `GlobalExceptionHandler` returns uniform JSON error responses.
+- Detects incoming payload format from `Content-Type` header or payload structure.
+- Parses incoming JSON or XML into a common canonical JSON model.
+- Routes to provider/operation from config only (no hardcoding).
+- Transforms canonical payload using configurable templates.
+- Converts provider request payload to XML when provider expects XML.
+- Converts XML provider responses back into JSON and maps to standard JSON output.
 
 ## Package Structure
 
 ```text
-com.viswambara.converter
+com.lanc.converter
 ├── config
 ├── controller
 ├── domain
@@ -30,78 +27,34 @@ com.viswambara.converter
 
 ## Configuration-Driven Contract
 
-All behavior is configured in `application.yml` + mapping templates under `src/main/resources/mappings`:
+All behavior is controlled in `application.yml` + mapping templates under `src/main/resources/mappings`.
 
-1. **Routing** (`integration.routing`) defines matching criteria using JSON pointers.
-2. **Providers** (`integration.providers`) defines endpoint details.
-3. **Mappings** (`integration.mappings`) binds `provider:operation` to request/response templates.
+- `integration.routing`: route criteria using JSON pointers.
+- `integration.providers`: endpoint, timeout, request format, response format, request XML root element.
+- `integration.mappings`: request/response template per `provider:operation`.
 
-No code changes are required to add providers/operations or update mapping formats.
+Adding new provider/operation or changing request/response formats requires only configuration/template changes.
 
-## Example Inputs and Outputs
+## Example flow
 
-### JSON input request
+1. Receive input (`JSON` or `XML`).
+2. Detect format.
+3. Parse to canonical model.
+4. Resolve provider+operation from config.
+5. Transform canonical -> provider payload.
+6. Convert provider request to XML if configured.
+7. Call provider API.
+8. Convert XML provider response to JSON if configured.
+9. Transform provider response -> standard JSON.
+10. Return JSON.
 
-```json
-{
-  "intent": "CREATE_ORDER",
-  "serviceCode": "ORD",
-  "orderId": "O-1001",
-  "amount": 2500,
-  "customer": {
-    "id": "C-100",
-    "documentNo": "ABCD1234"
-  }
-}
-```
-
-### XML input request
-
-```xml
-<root>
-  <intent>VALIDATE_CUSTOMER</intent>
-  <serviceCode>CUST</serviceCode>
-  <customer>
-    <id>C-555</id>
-    <documentNo>PAN9876</documentNo>
-  </customer>
-</root>
-```
-
-### Provider request (after transformation)
-
-```json
-{
-  "validation": {
-    "customerId": "C-555",
-    "documentNo": "PAN9876"
-  },
-  "meta": {
-    "requestType": "VALIDATE_CUSTOMER"
-  }
-}
-```
-
-### Standard JSON output response
-
-```json
-{
-  "status": "SUCCESS",
-  "transactionId": "TXN-7687",
-  "message": "Customer validated",
-  "provider": "providerB",
-  "operation": "validateCustomer",
-  "inputFormat": "XML"
-}
-```
-
-## Running
+## Run
 
 ```bash
 mvn spring-boot:run
 ```
 
-## Testing
+## Test
 
 ```bash
 mvn test

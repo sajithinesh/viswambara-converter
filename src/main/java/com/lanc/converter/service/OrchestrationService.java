@@ -1,16 +1,16 @@
-package com.viswambara.converter.service;
+package com.lanc.converter.service;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.viswambara.converter.config.IntegrationProperties;
-import com.viswambara.converter.domain.CanonicalRequest;
-import com.viswambara.converter.domain.InputFormat;
-import com.viswambara.converter.domain.RouteDecision;
-import com.viswambara.converter.exception.IntegrationException;
-import com.viswambara.converter.mapping.CanonicalParser;
-import com.viswambara.converter.mapping.FormatDetectionService;
-import com.viswambara.converter.mapping.TemplateMappingEngine;
-import com.viswambara.converter.provider.ProviderGateway;
-import com.viswambara.converter.routing.RouteResolver;
+import com.lanc.converter.config.IntegrationProperties;
+import com.lanc.converter.domain.CanonicalRequest;
+import com.lanc.converter.domain.InputFormat;
+import com.lanc.converter.domain.RouteDecision;
+import com.lanc.converter.exception.IntegrationException;
+import com.lanc.converter.mapping.CanonicalParser;
+import com.lanc.converter.mapping.FormatDetectionService;
+import com.lanc.converter.mapping.TemplateMappingEngine;
+import com.lanc.converter.provider.ProviderGateway;
+import com.lanc.converter.routing.RouteResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -53,8 +53,14 @@ public class OrchestrationService {
                     "Missing mapping config for " + mappingKey(decision));
         }
 
+        IntegrationProperties.ProviderConfig providerConfig = properties.getProviders().get(decision.provider());
+        if (providerConfig == null) {
+            throw new IntegrationException(HttpStatus.INTERNAL_SERVER_ERROR,
+                    "Missing provider config for " + decision.provider());
+        }
+
         ObjectNode providerRequest = mappingEngine.applyTemplate(mappingConfig.getRequestTemplate(), canonicalRequest.payload());
-        var providerResponse = providerGateway.invoke(decision.provider(), providerRequest);
+        var providerResponse = providerGateway.invoke(decision.provider(), providerRequest, providerConfig);
         ObjectNode standardized = mappingEngine.applyTemplate(mappingConfig.getResponseTemplate(), providerResponse);
 
         standardized.put("provider", decision.provider());

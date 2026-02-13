@@ -1,4 +1,4 @@
-package com.viswambara.converter;
+package com.lanc.converter;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -8,9 +8,9 @@ import org.springframework.retry.annotation.EnableRetry;
 @EnableRetry
 @SpringBootApplication
 @ConfigurationPropertiesScan
-public class ViswambaraConverterApplication {
+public class LancConverterApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(ViswambaraConverterApplication.class, args);
+        SpringApplication.run(LancConverterApplication.class, args);
     }
 }
