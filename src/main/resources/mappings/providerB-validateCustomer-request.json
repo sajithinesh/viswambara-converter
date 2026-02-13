@@ -1,0 +1,7 @@
+{
+  "fields": {
+    "/validation/customerId": "/customer/id",
+    "/validation/documentNo": "/customer/documentNo",
+    "/meta/requestType": "/intent"
+  }
+}

@@ -1,0 +1,43 @@
+spring:
+  application:
+    name: viswambara-converter
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+
+integration:
+  routing:
+    - provider: providerA
+      operation: createOrder
+      match:
+        /intent: CREATE_ORDER
+        /serviceCode: ORD
+    - provider: providerB
+      operation: validateCustomer
+      match:
+        /intent: VALIDATE_CUSTOMER
+        /serviceCode: CUST
+
+  providers:
+    providerA:
+      baseUrl: http://localhost:9091
+      path: /provider-a/orders
+      timeout: 5s
+      requestFormat: JSON
+    providerB:
+      baseUrl: http://localhost:9092
+      path: /provider-b/customers/validate
+      timeout: 5s
+      requestFormat: XML
+      xmlRootElement: validateCustomerRequest
+
+  mappings:
+    providerA:createOrder:
+      requestTemplate: classpath:mappings/providerA-createOrder-request.json
+      responseTemplate: classpath:mappings/providerA-createOrder-response.json
+    providerB:validateCustomer:
+      requestTemplate: classpath:mappings/providerB-validateCustomer-request.json
+      responseTemplate: classpath:mappings/providerB-validateCustomer-response.json

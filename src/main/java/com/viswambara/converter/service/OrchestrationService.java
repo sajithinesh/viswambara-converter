@@ -1,0 +1,70 @@
+package com.viswambara.converter.service;
+
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.viswambara.converter.config.IntegrationProperties;
+import com.viswambara.converter.domain.CanonicalRequest;
+import com.viswambara.converter.domain.InputFormat;
+import com.viswambara.converter.domain.RouteDecision;
+import com.viswambara.converter.exception.IntegrationException;
+import com.viswambara.converter.mapping.CanonicalParser;
+import com.viswambara.converter.mapping.FormatDetectionService;
+import com.viswambara.converter.mapping.TemplateMappingEngine;
+import com.viswambara.converter.provider.ProviderGateway;
+import com.viswambara.converter.routing.RouteResolver;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+
+@Service
+public class OrchestrationService {
+
+    private static final Logger log = LoggerFactory.getLogger(OrchestrationService.class);
+
+    private final FormatDetectionService formatDetectionService;
+    private final CanonicalParser canonicalParser;
+    private final RouteResolver routeResolver;
+    private final TemplateMappingEngine mappingEngine;
+    private final ProviderGateway providerGateway;
+    private final IntegrationProperties properties;
+
+    public OrchestrationService(FormatDetectionService formatDetectionService,
+                                CanonicalParser canonicalParser,
+                                RouteResolver routeResolver,
+                                TemplateMappingEngine mappingEngine,
+                                ProviderGateway providerGateway,
+                                IntegrationProperties properties) {
+        this.formatDetectionService = formatDetectionService;
+        this.canonicalParser = canonicalParser;
+        this.routeResolver = routeResolver;
+        this.mappingEngine = mappingEngine;
+        this.providerGateway = providerGateway;
+        this.properties = properties;
+    }
+
+    public ObjectNode process(String body, String contentType) {
+        InputFormat inputFormat = formatDetectionService.detect(contentType, body);
+        CanonicalRequest canonicalRequest = canonicalParser.parse(inputFormat, body);
+        RouteDecision decision = routeResolver.resolve(canonicalRequest.payload());
+
+        IntegrationProperties.MappingConfig mappingConfig = properties.getMappings().get(mappingKey(decision));
+        if (mappingConfig == null) {
+            throw new IntegrationException(HttpStatus.INTERNAL_SERVER_ERROR,
+                    "Missing mapping config for " + mappingKey(decision));
+        }
+
+        ObjectNode providerRequest = mappingEngine.applyTemplate(mappingConfig.getRequestTemplate(), canonicalRequest.payload());
+        var providerResponse = providerGateway.invoke(decision.provider(), providerRequest);
+        ObjectNode standardized = mappingEngine.applyTemplate(mappingConfig.getResponseTemplate(), providerResponse);
+
+        standardized.put("provider", decision.provider());
+        standardized.put("operation", decision.operation());
+        standardized.put("inputFormat", inputFormat.name());
+        log.info("Processed request provider={} operation={} inputFormat={}", decision.provider(), decision.operation(), inputFormat);
+        return standardized;
+    }
+
+    private String mappingKey(RouteDecision decision) {
+        return decision.provider() + ":" + decision.operation();
+    }
+}

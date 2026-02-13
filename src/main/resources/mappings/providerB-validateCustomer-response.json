@@ -1,0 +1,7 @@
+{
+  "fields": {
+    "/status": "/validationStatus",
+    "/transactionId": "/referenceId",
+    "/message": "/reason"
+  }
+}
