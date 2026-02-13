@@ -42,8 +42,29 @@ class OrchestrationServiceTest {
 
     @DynamicPropertySource
     static void register(DynamicPropertyRegistry registry) {
+        registry.add("integration.routing[0].provider", () -> "providerA");
+        registry.add("integration.routing[0].operation", () -> "createOrder");
+        registry.add("integration.routing[0].match[/intent]", () -> "CREATE_ORDER");
+        registry.add("integration.routing[0].match[/serviceCode]", () -> "ORD");
+
+        registry.add("integration.routing[1].provider", () -> "providerB");
+        registry.add("integration.routing[1].operation", () -> "validateCustomer");
+        registry.add("integration.routing[1].match[/intent]", () -> "VALIDATE_CUSTOMER");
+        registry.add("integration.routing[1].match[/serviceCode]", () -> "CUST");
+
         registry.add("integration.providers.providerA.baseUrl", () -> providerA.url("/").toString().replaceAll("/$", ""));
+        registry.add("integration.providers.providerA.path", () -> "/provider-a/orders");
+        registry.add("integration.providers.providerA.requestFormat", () -> "JSON");
+
         registry.add("integration.providers.providerB.baseUrl", () -> providerB.url("/").toString().replaceAll("/$", ""));
+        registry.add("integration.providers.providerB.path", () -> "/provider-b/customers/validate");
+        registry.add("integration.providers.providerB.requestFormat", () -> "XML");
+        registry.add("integration.providers.providerB.xmlRootElement", () -> "validateCustomerRequest");
+
+        registry.add("integration.mappings.providerA:createOrder.requestTemplate", () -> "classpath:mappings/providerA-createOrder-request.json");
+        registry.add("integration.mappings.providerA:createOrder.responseTemplate", () -> "classpath:mappings/providerA-createOrder-response.json");
+        registry.add("integration.mappings.providerB:validateCustomer.requestTemplate", () -> "classpath:mappings/providerB-validateCustomer-request.json");
+        registry.add("integration.mappings.providerB:validateCustomer.responseTemplate", () -> "classpath:mappings/providerB-validateCustomer-response.json");
     }
 
     @Test

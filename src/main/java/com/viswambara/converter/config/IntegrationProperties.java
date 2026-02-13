@@ -2,11 +2,12 @@ package com.viswambara.converter.config;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.validation.annotation.Validated;
 
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -15,23 +16,20 @@ import java.util.Map;
 public class IntegrationProperties {
 
     @Valid
-    @NotEmpty
-    private List<RouteRule> routing;
+    private List<RouteRule> routing = new ArrayList<>();
 
     @Valid
-    @NotEmpty
-    private Map<String, ProviderConfig> providers;
+    private Map<String, ProviderConfig> providers = new LinkedHashMap<>();
 
     @Valid
-    @NotEmpty
-    private Map<String, MappingConfig> mappings;
+    private Map<String, MappingConfig> mappings = new LinkedHashMap<>();
 
     public List<RouteRule> getRouting() {
         return routing;
     }
 
     public void setRouting(List<RouteRule> routing) {
-        this.routing = routing;
+        this.routing = routing == null ? new ArrayList<>() : new ArrayList<>(routing);
     }
 
     public Map<String, ProviderConfig> getProviders() {
@@ -39,7 +37,7 @@ public class IntegrationProperties {
     }
 
     public void setProviders(Map<String, ProviderConfig> providers) {
-        this.providers = providers;
+        this.providers = providers == null ? new LinkedHashMap<>() : new LinkedHashMap<>(providers);
     }
 
     public Map<String, MappingConfig> getMappings() {
@@ -47,7 +45,7 @@ public class IntegrationProperties {
     }
 
     public void setMappings(Map<String, MappingConfig> mappings) {
-        this.mappings = mappings;
+        this.mappings = mappings == null ? new LinkedHashMap<>() : new LinkedHashMap<>(mappings);
     }
 
     public static class RouteRule {
@@ -55,8 +53,7 @@ public class IntegrationProperties {
         private String provider;
         @NotBlank
         private String operation;
-        @NotEmpty
-        private Map<String, String> match;
+        private Map<String, String> match = new LinkedHashMap<>();
 
         public String getProvider() {
             return provider;
@@ -79,7 +76,7 @@ public class IntegrationProperties {
         }
 
         public void setMatch(Map<String, String> match) {
-            this.match = match;
+            this.match = match == null ? new LinkedHashMap<>() : new LinkedHashMap<>(match);
         }
     }
 
